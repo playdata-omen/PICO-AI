@@ -25,4 +25,6 @@ htmlcov/
 .coverage.*
 *,cover
 
-test*
+test_data/
+
+config.py
