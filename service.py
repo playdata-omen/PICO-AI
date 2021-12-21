@@ -1,17 +1,17 @@
 from tensorflow.keras.applications.resnet50 import preprocess_input, decode_predictions
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import numpy as np
-import dao, model
+from tensorflow.python.ops.gen_array_ops import rank
+import dao
+from model import Model
 import requests
 import base64
 import os
 import json
 
+photoDAO, photographerDAO = dao.PhotoDAO(), dao.PhotographerDAO()
 
-model = model.Model()
-dao = dao.PhotoDAO()
-
-class Service():
+class Service:
 	def createTemp(self, extension, imgCode):
 		temp = 'temp.' + extension
 		open(temp, 'wb').write(imgCode)
@@ -21,9 +21,7 @@ class Service():
 
 		return img
 
-
 	def predict(self, newModel, image, isLabeling):
-		# probability_model = tf.keras.Sequential([newModel, tf.keras.layers.Softmax()])
 		preds = decode_predictions(newModel.predict(image), top=50)
 		if isLabeling:
 			result = [[p[1], str(p[2])] for p in preds[0]]
@@ -32,16 +30,15 @@ class Service():
 
 		return result
 
-
-	def decode(self, base64_string):
-		if ',' in base64_string:
-			extension = base64_string.split(',')[0].split("/")[1].split(";")[0]
-			base64_string = base64_string.split(',')[1]
-		decoded = base64.b64decode(base64_string)
-		Service().createTemp(extension, decoded)
-
-		return load_img('temp.jpg', target_size=(224,224))
-
+	def decode(self, base64string):
+		if "," in str(base64string):
+			extension = str(base64string).split(',')[0].split("/")[1].split(";")[0]
+			base64string = str(base64string).split(',')[1]
+		else: 
+			extension = "jpg"
+		decoded = base64.b64decode(base64string)
+		img = self.createTemp(extension, decoded)
+		return img
 
 	def preprocessing(self, img):
 		img_array = img_to_array(img)
@@ -50,51 +47,57 @@ class Service():
 
 		return img_array
 
-
 	def labeling(self):
 		result = False
-		dtoList = dao.findAllUnlabeled()
-		newModel = model.loadModel()
+		dtoList = photoDAO.findAllUnlabeled()
+		newModel = Model().loadModel()
 		for dto in dtoList:
 			url = dto.getStoredFilePath()
 			if dto.getLabel() is None:
 				res = requests.get(url)
 				extension = url.split("/")[-1].split(".")[1]
 
-				img = Service().createTemp(extension, res.content)
-				preprocessedImg = Service().preprocessing(img)
-				preds = Service().predict(newModel, preprocessedImg, True)
+				img = self.createTemp(extension, res.content)
+				preprocessedImg = self.preprocessing(img)
+				preds = self.predict(newModel, preprocessedImg, True)
 
 				label = json.dumps({"data": preds})
-				result = dao.updateLabel((label, dto.getPhotoIdx()))
+				result = photoDAO.updateLabel((label, dto.getPhotoIdx()))
 
 		return result
 
-
 	def search(self, base64string):
-			recommendList = {}
-			newModel = model.loadModel()
-			decoded = Service().decode(base64string)
-			preprocessedImage = Service().preprocessing(decoded)
-			preds = Service().predict(newModel, preprocessedImage, False)
+		analyzed = {}
+		newModel = Model().loadModel()
+		decoded = self.decode(base64string)
+		preprocessedImage = self.preprocessing(decoded)
+		preds = self.predict(newModel, preprocessedImage, False)
 
-			dtoList = dao.findAllLabeled()
+		dtoList = photoDAO.findAllLabeled()
+		for dto in dtoList:
+			key = dto.getPhotoIdx()
+			value = [dto.getWorkIdx(), 0, dto.getStoredFilePath()]
 
-			for dto in dtoList:
-				recommendList.setdefault(dto.getPhotoIdx(), [dto.getPhotoIdx(),0]) # 추천리스트에 이미지 idx 등록
-				for label in dto.getLabel():
-					for predict in preds:
-						if label[0] == predict[0]:
-							recommendList[dto.getPhotoIdx()][1] += (float(label[1])*float(predict[1])*1000) # 키워드의 정확도 합산
-							break
-				recommendList[dto.getPhotoIdx()][1] = str(recommendList[dto.getPhotoIdx()][1])
+			analyzed.setdefault(key, value) # 추천리스트에 이미지 idx 등록
+			for label in dto.getLabel():
+				for predict in preds:
+					if label[0] == predict[0]:
+						analyzed[key][1] += (float(label[1])*float(predict[1])*1000) # 키워드의 정확도 합산
+						break
+		seacrhResult = self.rank(analyzed)
 
-			return recommendList
+		return seacrhResult
 
+	def rank(self, analyzed):
+		rankList = []
+		sortedList = sorted(analyzed.items(), key=lambda x: x[1][1], reverse=True)[:5]
+		for i in range(len(sortedList)):
+			ranked = {
+									"rank" : i+1, 
+									"photoIdx" : sortedList[i][0], 
+									"photographerIdx" : photographerDAO.findByWorkIdx(sortedList[i][1][0]), 
+									"storedFilePath" : sortedList[i][1][2]
+								}
+			rankList.append(ranked)
 
-if __name__ == "__main__":
-	# img = load_img("./test_data/event.jpg", target_size=(224,224))
-	# result = Service().searchTest(img)
-	# print(result)
-	
-	Service().labeling()
+		return rankList

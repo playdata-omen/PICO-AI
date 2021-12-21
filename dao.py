@@ -1,4 +1,3 @@
-from flask.json import jsonify
 from util import getConnect
 import sql
 import error
@@ -37,7 +36,6 @@ class PhotoDAO:
 				cur.execute(sql.findAllLabeled) 
 				rows = cur.fetchall()  
 				dtoList = [PhotoDTO(row[0],row[1],row[2],json.loads(row[3])["data"]) for row in rows]
-				print(dtoList)
 			except Exception as e:
 				print(error.findAllLabeled)
 				print(e) 
@@ -56,7 +54,7 @@ class PhotoDAO:
 			conn = getConnect()
 			cur = conn.cursor()
 			try:
-				cur.execute("update photo set label=%s where photo_idx=%s", data) 
+				cur.execute(sql.updateLabelQuery, data) 
 				conn.commit()
 				result = True
 			except Exception as e:
@@ -74,18 +72,15 @@ class PhotoDAO:
 
 
 class PhotographerDAO:
-	def findByWorkIdx(workIdx):
+	def findByWorkIdx(self, workIdx):
 		try:
 			conn = getConnect()
 			cur = conn.cursor()
 			try:
-				cur.execute(sql.findAllUnlabeled, workIdx) 
-				row = cur.fetchone()
-				print(row)
-				photographerIdx = row[0]
-				print(photographerIdx)
+				cur.execute(sql.findByWorkIdx, workIdx) 
+				photographerIdx = cur.fetchone()[0]
 			except Exception as e:
-				print(error.findAllUnlabeled)
+				print(error.findByWorkIdx)
 				print(e) 
 			finally:
 				cur.close() 
@@ -95,8 +90,3 @@ class PhotographerDAO:
 			print(e) 
 
 		return photographerIdx
-
-
-if __name__ == "__main__":
-    # PhotoDAO().findAllUnlabeled()
-    PhotoDAO().findAllLabeled()

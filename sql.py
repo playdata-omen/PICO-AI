@@ -1,5 +1,5 @@
-findAllUnlabeled = "select photo_idx, work_idx, stored_file_path, label from photo where label is null"
-findAllLabeled = "select photo_idx, work_idx, stored_file_path, label from photo where label is not null"
+findAllUnlabeled = "SELECT photo_idx, work_idx, stored_file_path, label FROM photo WHERE label is NULL"
+findAllLabeled = "SELECT photo_idx, work_idx, stored_file_path, label FROM photo WHERE label is not NULL"
 updateLabelQuery = "UPDATE photo SET label=%s WHERE photo_idx=%s"
 
-findByWorkIdx = "select photographer_idx from work where work_idx=%s"
+findByWorkIdx = "SELECT photographer_idx FROM work WHERE work_idx=%s"

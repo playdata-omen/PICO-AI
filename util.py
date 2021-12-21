@@ -1,7 +1,7 @@
 import pymysql
 import config
 
-def getCORS():
+def getServer():
 	return config.server
 
 
