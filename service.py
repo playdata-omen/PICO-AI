@@ -1,15 +1,13 @@
 from tensorflow.keras.applications.resnet50 import preprocess_input, decode_predictions
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import numpy as np
-from tensorflow.python.ops.gen_array_ops import rank
-import dao
+from dao import PhotoDAO, WorkDAO 
 from model import Model
 import requests
 import base64
 import os
 import json
 
-photoDAO, photographerDAO = dao.PhotoDAO(), dao.PhotographerDAO()
 
 class Service:
 	def createTemp(self, extension, imgCode):
@@ -21,6 +19,7 @@ class Service:
 
 		return img
 
+
 	def predict(self, newModel, image, isLabeling):
 		preds = decode_predictions(newModel.predict(image), top=50)
 		if isLabeling:
@@ -29,6 +28,7 @@ class Service:
 			result = [[p[1], p[2]] for p in preds[0]]
 
 		return result
+
 
 	def decode(self, base64string):
 		if "," in str(base64string):
@@ -40,6 +40,7 @@ class Service:
 		img = self.createTemp(extension, decoded)
 		return img
 
+
 	def preprocessing(self, img):
 		img_array = img_to_array(img)
 		img_array = np.expand_dims(img_array, axis=0)
@@ -47,7 +48,9 @@ class Service:
 
 		return img_array
 
+
 	def labeling(self):
+		photoDAO = PhotoDAO()
 		result = False
 		dtoList = photoDAO.findAllUnlabeled()
 		newModel = Model().loadModel()
@@ -66,6 +69,7 @@ class Service:
 
 		return result
 
+
 	def search(self, base64string):
 		analyzed = {}
 		newModel = Model().loadModel()
@@ -73,7 +77,7 @@ class Service:
 		preprocessedImage = self.preprocessing(decoded)
 		preds = self.predict(newModel, preprocessedImage, False)
 
-		dtoList = photoDAO.findAllLabeled()
+		dtoList = PhotoDAO().findAllLabeled()
 		for dto in dtoList:
 			key = dto.getPhotoIdx()
 			value = [dto.getWorkIdx(), 0, dto.getStoredFilePath()]
@@ -88,6 +92,7 @@ class Service:
 
 		return seacrhResult
 
+
 	def rank(self, analyzed):
 		rankList = []
 		sortedList = sorted(analyzed.items(), key=lambda x: x[1][1], reverse=True)[:5]
@@ -95,7 +100,7 @@ class Service:
 			ranked = {
 									"rank" : i+1, 
 									"photoIdx" : sortedList[i][0], 
-									"photographerIdx" : photographerDAO.findByWorkIdx(sortedList[i][1][0]), 
+									"photographerIdx" : WorkDAO().findPhotographerIdx(sortedList[i][1][0]), 
 									"storedFilePath" : sortedList[i][1][2]
 								}
 			rankList.append(ranked)

@@ -20,27 +20,14 @@ def create_app():
 		return result
 
 
-	@app.route('/search_image', methods = ['POST'])
+	@app.route('/searchImage', methods = ['POST'])
 	def search_image():
-		# data = request.get_jason()
-		# data = request.form["userfile"]
-
-		# default_value = '0'
-		# result_string = request.form.get('userfile', default_value)
-		# if result_string == '0':
-		#     result_file = request.files["userfile"]
-				
-		# result_string = request.form.get("userfile")
-		import base64
-		with open("./test_data/event.jpg", 'rb') as f:
-			base64string = base64.b64encode(f.read())
-		result = Service().search(base64string)
+		data = request.form.get("userFile")
+		result = Service().search(data)
 
 		return {"search_result":result}
 
 	return app
-
+	
 if __name__ == "__main__":
 	create_app().run()
-
-

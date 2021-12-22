@@ -27,6 +27,7 @@ class PhotoDAO:
 
 		return dtoList
 
+
 	def findAllLabeled(self):  
 		dtoList = []
 		try:
@@ -47,6 +48,7 @@ class PhotoDAO:
 			print(e) 
 
 		return dtoList
+
 
 	def updateLabel(self, data):  
 		result = False
@@ -71,16 +73,16 @@ class PhotoDAO:
 		return result
 
 
-class PhotographerDAO:
-	def findByWorkIdx(self, workIdx):
+class WorkDAO:
+	def findPhotographerIdx(self, workIdx):
 		try:
 			conn = getConnect()
 			cur = conn.cursor()
 			try:
-				cur.execute(sql.findByWorkIdx, workIdx) 
+				cur.execute(sql.findPhotographerIdx, workIdx) 
 				photographerIdx = cur.fetchone()[0]
 			except Exception as e:
-				print(error.findByWorkIdx)
+				print(error.findPhotographerIdx)
 				print(e) 
 			finally:
 				cur.close() 
