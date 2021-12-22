@@ -14,6 +14,7 @@ class PhotoDAO:
 			try:
 				cur.execute(sql.findAllUnlabeled) 
 				rows = cur.fetchall()  
+				print(rows[0])
 				dtoList = [PhotoDTO(row[0],row[1],row[2],row[3]) for row in rows]
 			except Exception as e:
 				print(error.findAllUnlabeled)
