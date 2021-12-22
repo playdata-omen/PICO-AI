@@ -28,3 +28,5 @@ htmlcov/
 test_data/
 
 config.py
+
+test.py

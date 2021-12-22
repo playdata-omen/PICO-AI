@@ -76,11 +76,12 @@ class PhotoDAO:
 
 class WorkDAO:
 	def findPhotographerIdx(self, workIdx):
+		photographerIdx = ""
 		try:
 			conn = getConnect()
 			cur = conn.cursor()
 			try:
-				cur.execute(sql.findPhotographerIdx, workIdx) 
+				cur.execute(sql.findPhotographerIdx, workIdx)
 				photographerIdx = cur.fetchone()[0]
 			except Exception as e:
 				print(error.findPhotographerIdx)
