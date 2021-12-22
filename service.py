@@ -106,3 +106,6 @@ class Service:
 			rankList.append(ranked)
 
 		return rankList
+
+if __name__ == "__main__":
+	Service().labeling()
