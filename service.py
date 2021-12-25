@@ -7,6 +7,8 @@ import requests
 import base64
 import os
 import json
+from util import getConnect
+import error
 
 
 class Service:
@@ -52,20 +54,32 @@ class Service:
 	def labeling(self):
 		photoDAO = PhotoDAO()
 		result = False
-		dtoList = photoDAO.findAllUnlabeled()
 		newModel = Model().loadModel()
-		for dto in dtoList:
-			url = dto.getStoredFilePath()
-			if dto.getLabel() is None:
-				res = requests.get(url)
-				extension = url.split("/")[-1].split(".")[1]
 
-				img = self.createTemp(extension, res.content)
-				preprocessedImg = self.preprocessing(img)
-				preds = self.predict(newModel, preprocessedImg, True)
+		try:
+			conn = getConnect()
+			cur = conn.cursor()
+			dtoList = photoDAO.findAllUnlabeled(cur)
+			for dto in dtoList:
+				url = dto.getStoredFilePath()
+				if dto.getLabel() is None:
+					res = requests.get(url)
+					extension = url.split("/")[-1].split(".")[1]
 
-				label = json.dumps({"data": preds})
-				result = photoDAO.updateLabel((label, dto.getPhotoIdx()))
+					img = self.createTemp(extension, res.content)
+					preprocessedImg = self.preprocessing(img)
+					preds = self.predict(newModel, preprocessedImg, True)
+
+					label = json.dumps({"data": preds})
+					result = photoDAO.updateLabel((label, dto.getPhotoIdx()),conn,cur)
+		except Exception as e:
+			print(error.connection)
+			print(e) 			
+		finally:
+			if conn:
+				conn.close()
+			if cur:
+				cur.close() 
 
 		return result
 
@@ -96,14 +110,26 @@ class Service:
 	def rank(self, analyzed):
 		rankList = []
 		sortedList = sorted(analyzed.items(), key=lambda x: x[1][1], reverse=True)[:5]
-		for i in range(len(sortedList)):
-			ranked = {
-									"rank" : i+1, 
-									"photoIdx" : sortedList[i][0], 
-									"photographerIdx" : WorkDAO().findPhotographerIdx(sortedList[i][1][0]), 
-									"storedFilePath" : sortedList[i][1][2]
-								}
-			rankList.append(ranked)
+		try:
+			conn = getConnect()
+			cur = conn.cursor()
+			for i in range(len(sortedList)):
+				ranked = {
+										"rank" : i+1, 
+										"photoIdx" : sortedList[i][0], 
+										"workIdx" : sortedList[i][1][0],
+										# "photographerIdx" : WorkDAO().findPhotographerIdx(sortedList[i][1][0],cur), 
+										"storedFilePath" : sortedList[i][1][2]
+									}
+				rankList.append(ranked)
+		except Exception as e:
+			print(error.connection)
+			print(e) 			
+		finally:
+			if conn:
+				conn.close()
+			if cur:
+				cur.close() 
 
 		return rankList
 

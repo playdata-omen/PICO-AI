@@ -6,25 +6,24 @@ import json
 
 
 class PhotoDAO:
-	def findAllUnlabeled(self):  
+	def findAllUnlabeled(self,cur):  
 		dtoList = []
+		# try:
+		# 	conn = getConnect()
+		# 	cur = conn.cursor()
 		try:
-			conn = getConnect()
-			cur = conn.cursor()
-			try:
-				cur.execute(sql.findAllUnlabeled) 
-				rows = cur.fetchall()  
-				print(rows[0])
-				dtoList = [PhotoDTO(row[0],row[1],row[2],row[3]) for row in rows]
-			except Exception as e:
-				print(error.findAllUnlabeled)
-				print(e) 
-			finally:
-				cur.close() 
-				conn.close()
+			cur.execute(sql.findAllUnlabeled) 
+			rows = cur.fetchall()  
+			dtoList = [PhotoDTO(row[0],row[1],row[2],row[3]) for row in rows]
 		except Exception as e:
-			print(error.connection)
+			print(error.findAllUnlabeled)
 			print(e) 
+		# 	finally:
+		# 		cur.close() 
+		# 		conn.close()
+		# except Exception as e:
+		# 	print(error.connection)
+		# 	print(e) 
 
 		return dtoList
 
@@ -51,46 +50,46 @@ class PhotoDAO:
 		return dtoList
 
 
-	def updateLabel(self, data):  
+	def updateLabel(self, data, conn, cur):  
 		result = False
+		# try:
+		# 	conn = getConnect()
+		# 	cur = conn.cursor()
 		try:
-			conn = getConnect()
-			cur = conn.cursor()
-			try:
-				cur.execute(sql.updateLabelQuery, data) 
-				conn.commit()
-				result = True
-			except Exception as e:
-				conn.rollback()
-				print(error.updateLabel)
-				print(e) 
-			finally:
-				cur.close() 
-				conn.close()
+			cur.execute(sql.updateLabelQuery, data) 
+			conn.commit()
+			result = True
 		except Exception as e:
-			print(error.connection)
+			conn.rollback()
+			print(error.updateLabel)
 			print(e) 
+		# finally:
+		# 	cur.close() 
+		# 	conn.close()
+		# except Exception as e:
+		# 	print(error.connection)
+		# 	print(e) 
 
 		return result
 
 
 class WorkDAO:
-	def findPhotographerIdx(self, workIdx):
+	def findPhotographerIdx(self, workIdx, cur):
 		photographerIdx = ""
+		# try:
+		# 	conn = getConnect()
+		# 	cur = conn.cursor()
 		try:
-			conn = getConnect()
-			cur = conn.cursor()
-			try:
-				cur.execute(sql.findPhotographerIdx, workIdx)
-				photographerIdx = cur.fetchone()[0]
-			except Exception as e:
-				print(error.findPhotographerIdx)
-				print(e) 
-			finally:
-				cur.close() 
-				conn.close()
+			cur.execute(sql.findPhotographerIdx, workIdx)
+			photographerIdx = cur.fetchone()[0]
 		except Exception as e:
-			print(error.connection)
+			print(error.findPhotographerIdx)
 			print(e) 
+		# finally:
+		# 	cur.close() 
+		# 	conn.close()
+		# except Exception as e:
+		# 	print(error.connection)
+		# 	print(e) 
 
 		return photographerIdx
