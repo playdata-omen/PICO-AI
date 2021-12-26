@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-12-26T16:53:49.829Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.62" etag="OYhShT8tv_ttq1t_Y3U4" version="15.5.0" type="github">
+<mxfile host="app.diagrams.net" modified="2021-12-26T16:54:13.641Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.62" etag="iXGsF7wQ22FXt-io_YuE" version="15.5.0" type="github">
   <diagram id="XfAZiI8CaQrhfZUaU5dn" name="Page-1">
     <mxGraphModel dx="2826" dy="1281" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -80,7 +80,7 @@
           <mxGeometry y="40" width="204" height="160" as="geometry" />
         </mxCell>
         <mxCell id="Dx7y4EGR-CTOSj1UD8kM-32" value="&lt;span style=&quot;font-weight: normal&quot;&gt;&lt;font style=&quot;font-size: 30px&quot;&gt;비교 분석&lt;/font&gt;&lt;/span&gt;" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;fontStyle=1;fontSize=35;" parent="Dx7y4EGR-CTOSj1UD8kM-30" vertex="1">
-          <mxGeometry x="14" y="110" width="140" height="50" as="geometry" />
+          <mxGeometry x="13" y="126" width="140" height="50" as="geometry" />
         </mxCell>
         <mxCell id="Dx7y4EGR-CTOSj1UD8kM-31" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn4.iconfinder.com/data/icons/social-media-and-logos-12/32/Logo_reddit_robot-128.png" parent="Dx7y4EGR-CTOSj1UD8kM-43" vertex="1">
           <mxGeometry width="168" height="168" as="geometry" />
